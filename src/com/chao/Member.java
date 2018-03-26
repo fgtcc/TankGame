@@ -1,5 +1,64 @@
 package com.chao;
 
+//子弹类
+class Shot implements Runnable
+{
+	int x;
+	int y;
+	int direct;
+	int speed=3;
+	boolean isLive=true;//子弹状态逻辑值
+	public Shot(int x,int y,int direct)
+	{
+		this.x=x;
+		this.y=y;
+		this.direct=direct;
+	}
+	@Override
+	public void run() 
+	{
+		// TODO Auto-generated method stub
+		while(true)
+		{
+			try
+			{
+				Thread.sleep(50);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+			switch(direct)
+			{
+			case 0:
+				this.y-=speed;
+				break;
+			case 1:
+				this.x+=speed;
+				break;
+			case 2:
+				this.y+=speed;
+				break;
+			case 3:
+				this.x-=speed;
+				break;
+			}
+			
+			//测试线程是否成功开启
+			//System.out.println("子弹坐标x="+x+" y="+y);
+			
+			//子弹逻辑死亡
+			//判断子弹是否碰到边缘
+			if(x<0||x>400||y<0||y>300)
+			{
+				this.isLive=false;
+				break;
+			}
+		}
+	}
+}
+
+//坦克类
 class Tank
 {
 	int x=0;//坦克的横坐标
@@ -55,9 +114,33 @@ class Tank
 
 class Hero extends Tank
 {
+	Shot s=null;//子弹,目前只有一颗子弹
+	
 	public Hero(int x,int y)
 	{
 		super(x,y);
+	}
+	
+	public void shotEnemy()
+	{
+		switch(this.direct)
+		{
+		case 0:
+			s=new Shot(x+10,y,0);
+			break;
+		case 1:
+			s=new Shot(x+30,y+10,1);
+			break;
+		case 2:
+			s=new Shot(x+10,y+30,2);
+			break;
+		case 3:
+			s=new Shot(x,y+10,3);
+			break;
+		}
+		//启动子弹线程
+		Thread t=new Thread(s);
+		t.start();
 	}
 	
 	//坦克向上移动

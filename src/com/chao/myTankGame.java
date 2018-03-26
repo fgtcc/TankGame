@@ -27,6 +27,10 @@ public class myTankGame extends JFrame
 	public myTankGame()
 	{
 		mp=new MyPanel();
+		//启动mp线程
+		Thread t=new Thread(mp);
+		t.start();
+		
 		
 		this.add(mp);
 		
@@ -42,7 +46,7 @@ public class myTankGame extends JFrame
 }
 
 //面板
-class MyPanel extends JPanel implements KeyListener
+class MyPanel extends JPanel implements KeyListener,Runnable
 {
 	//定义一个我的坦克
 	Hero hero=null;
@@ -74,7 +78,12 @@ class MyPanel extends JPanel implements KeyListener
 		g.fillRect(0, 0, 400, 300);
 		//画出玩家坦克
 		this.drawTank(hero.getX(),hero.getY(),g,this.hero.getDirect(),1);
-		//画出地方坦克
+		//绘制子弹
+		if(hero.s!=null&&hero.s.isLive==true)
+		{
+			g.draw3DRect(hero.s.x, hero.s.y, 1, 1, false);	
+		}
+		//画出敌方坦克
 		for(int i=0;i<ets.size();i++)
 		{
 			this.drawTank(ets.get(i).getX(), ets.get(i).getY(), g, ets.get(i).direct, ets.get(i).color);
@@ -162,6 +171,14 @@ class MyPanel extends JPanel implements KeyListener
 			this.hero.MoveLeft();
 		}
 		
+		//判断玩家是否按下J键,让坦克发射子弹
+		if(e.getKeyCode()==KeyEvent.VK_J)
+		{
+			//开火
+			this.hero.shotEnemy();
+		}
+		
+		
 		//重绘窗口
 		this.repaint();
 	}
@@ -176,6 +193,26 @@ class MyPanel extends JPanel implements KeyListener
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void run() 
+	{
+		// TODO Auto-generated method stub
+		while(true)
+		{
+			try
+			{
+				Thread.sleep(100);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+			
+			//重绘
+			this.repaint();
+		}
 	}
 }
 
