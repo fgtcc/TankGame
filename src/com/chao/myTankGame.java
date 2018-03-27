@@ -18,8 +18,6 @@ public class myTankGame extends JFrame
 	{
 		// TODO Auto-generated method stub
 		myTankGame mtg=new myTankGame();
-
-
 		
 	}
 	
@@ -29,8 +27,7 @@ public class myTankGame extends JFrame
 		mp=new MyPanel();
 		//启动mp线程
 		Thread t=new Thread(mp);
-		t.start();
-		
+		t.start();	
 		
 		this.add(mp);
 		
@@ -48,9 +45,8 @@ public class myTankGame extends JFrame
 //面板
 class MyPanel extends JPanel implements KeyListener,Runnable
 {
-	//定义一个我的坦克
+	//定义玩家坦克
 	Hero hero=null;
-	
 	//定义敌方坦克
 	Vector<EnemyTank> ets=new Vector<EnemyTank>();
 	int enSize=3;//敌方坦克数量
@@ -74,8 +70,8 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 	public void paint(Graphics g)
 	{
 		super.paint(g);
-		
 		g.fillRect(0, 0, 400, 300);
+		
 		//画出玩家坦克
 		this.drawTank(hero.getX(),hero.getY(),g,this.hero.getDirect(),1);
 		
@@ -99,10 +95,39 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 		//画出敌方坦克
 		for(int i=0;i<ets.size();i++)
 		{
-			this.drawTank(ets.get(i).getX(), ets.get(i).getY(), g, ets.get(i).direct, ets.get(i).color);
-		}
-		
+			EnemyTank et=ets.get(i);
+			if(et.isLive)
+			{
+				this.drawTank(et.getX(), et.getY(), g, et.direct, et.color);	
+			}
+		}	
 	}
+	
+	//判断子弹是否击中坦克
+	public void hitTank(Shot s,EnemyTank et)
+	{
+		//判断坦克方向
+		switch(et.direct)
+		{
+		case 0:
+		case 2:
+			if(s.x>et.x&&s.x<et.x+20&&s.y>et.y&&s.y<et.y+30)
+			{
+				//击中
+				s.isLive=false;//子弹死亡
+				et.isLive=false;//敌方坦克死亡
+			}
+		case 1:
+		case 3:
+			if(s.x>et.x&&s.x<et.x+30&&s.y>et.y&&s.y<et.y+20)
+			{
+				//击中
+				s.isLive=false;//子弹死亡
+				et.isLive=false;//敌方坦克死亡
+			}
+		}
+	}
+	
 	
 	public void drawTank(int x,int y,Graphics g,int direct,int type)
 	{
@@ -156,9 +181,9 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 	
 	//键盘上的A、S、D、W控制坦克的移动
 	@Override
-	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
+	public void keyPressed(KeyEvent e) 
+	{
+		// TODO Auto-generated method stub	
 		//设置玩家坦克方向
 		if(e.getKeyCode()==KeyEvent.VK_W)
 		{
@@ -192,23 +217,23 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 			if(hero.ss.size()<=4)
 			{
 				this.hero.shotEnemy();//开火	
-			}
-			
+			}	
 		}
-		
-		
+				
 		//重绘窗口
 		this.repaint();
 	}
 
 	@Override
-	public void keyReleased(KeyEvent e) {
+	public void keyReleased(KeyEvent e) 
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e) {
+	public void keyTyped(KeyEvent e) 
+	{
 		// TODO Auto-generated method stub
 		
 	}
@@ -226,6 +251,26 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 			catch(Exception e)
 			{
 				e.printStackTrace();
+			}
+			
+			//判断子弹是否击中坦克
+			for(int i=0;i<hero.ss.size();i++)
+			{
+				Shot myshot=hero.ss.get(i);
+				//判断子弹状态
+				if(myshot.isLive)
+				{
+					for(int j=0;j<ets.size();j++)
+					{
+						EnemyTank et =ets.get(j);
+						
+						if(et.isLive)
+						{
+							this.hitTank(myshot, et);
+						}
+					}
+					
+				}
 			}
 			
 			//重绘

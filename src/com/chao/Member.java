@@ -5,10 +5,10 @@ import java.util.Vector;
 //子弹类
 class Shot implements Runnable
 {
-	int x;
-	int y;
-	int direct;
-	int speed=3;
+	int x;//子弹横坐标
+	int y;//子弹纵坐标
+	int direct;//子弹运动方向
+	int speed=3;//子弹速度
 	boolean isLive=true;//子弹状态逻辑值
 	public Shot(int x,int y,int direct)
 	{
@@ -65,29 +65,27 @@ class Tank
 {
 	int x=0;//坦克的横坐标
 	int y=0;//坦克的纵坐标
+	int direct=0;//坦克方向 ：0表示上，1表示右，2表示下，3表示左	
+	int speed=5;//坦克速度	
+	int color;//坦克颜色
 	
-	//坦克方向 ：0表示上，1表示右，2表示下，3表示左
-	int direct=0;
-	
-	//坦克速度
-	int speed=5;
-	
-	//坦克颜色
-	int color;
-	
-	public int getColor() {
+	public int getColor() 
+	{
 		return color;
 	}
 
-	public void setColor(int color) {
+	public void setColor(int color)
+	{
 		this.color = color;
 	}
 
-	public int getDirect() {
+	public int getDirect() 
+	{
 		return direct;
 	}
 
-	public void setDirect(int direct) {
+	public void setDirect(int direct) 
+	{
 		this.direct = direct;
 	}
 
@@ -97,19 +95,23 @@ class Tank
 		this.y=y;
 	}
 	
-	public int getX() {
+	public int getX()
+	{
 		return x;
 	}
 
-	public void setX(int x) {
+	public void setX(int x)
+	{
 		this.x = x;
 	}
 
-	public int getY() {
+	public int getY()
+	{
 		return y;
 	}
 
-	public void setY(int y) {
+	public void setY(int y)
+	{
 		this.y = y;
 	}
 }
@@ -174,6 +176,8 @@ class Hero extends Tank
 
 class EnemyTank extends Tank
 {
+	boolean isLive=true;//敌方坦克状态
+	
 	public EnemyTank(int x,int y)
 	{
 		super(x,y);
