@@ -78,16 +78,30 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 		g.fillRect(0, 0, 400, 300);
 		//画出玩家坦克
 		this.drawTank(hero.getX(),hero.getY(),g,this.hero.getDirect(),1);
+		
 		//绘制子弹
-		if(hero.s!=null&&hero.s.isLive==true)
+		for(int i=0;i<hero.ss.size();i++)
 		{
-			g.draw3DRect(hero.s.x, hero.s.y, 1, 1, false);	
+			Shot myshot=hero.ss.get(i);
+			
+			if(myshot!=null&&myshot.isLive==true)
+			{
+				g.draw3DRect(myshot.x, myshot.y, 1, 1, false);	
+			}
+			
+			//若子弹逻辑死亡，则将该子弹对象从数组中移除
+			if(myshot.isLive==false)
+			{
+				hero.ss.remove(myshot);
+			}
 		}
+		
 		//画出敌方坦克
 		for(int i=0;i<ets.size();i++)
 		{
 			this.drawTank(ets.get(i).getX(), ets.get(i).getY(), g, ets.get(i).direct, ets.get(i).color);
 		}
+		
 	}
 	
 	public void drawTank(int x,int y,Graphics g,int direct,int type)
@@ -174,8 +188,12 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 		//判断玩家是否按下J键,让坦克发射子弹
 		if(e.getKeyCode()==KeyEvent.VK_J)
 		{
-			//开火
-			this.hero.shotEnemy();
+			//若当前子弹不多于4颗，可继续添加一颗子弹，即最多5颗子弹
+			if(hero.ss.size()<=4)
+			{
+				this.hero.shotEnemy();//开火	
+			}
+			
 		}
 		
 		

@@ -1,5 +1,7 @@
 package com.chao;
 
+import java.util.Vector;
+
 //子弹类
 class Shot implements Runnable
 {
@@ -114,6 +116,7 @@ class Tank
 
 class Hero extends Tank
 {
+	Vector<Shot>ss=new Vector<Shot>();
 	Shot s=null;//子弹,目前只有一颗子弹
 	
 	public Hero(int x,int y)
@@ -127,15 +130,19 @@ class Hero extends Tank
 		{
 		case 0:
 			s=new Shot(x+10,y,0);
+			ss.add(s);
 			break;
 		case 1:
 			s=new Shot(x+30,y+10,1);
+			ss.add(s);
 			break;
 		case 2:
 			s=new Shot(x+10,y+30,2);
+			ss.add(s);
 			break;
 		case 3:
 			s=new Shot(x,y+10,3);
+			ss.add(s);
 			break;
 		}
 		//启动子弹线程
