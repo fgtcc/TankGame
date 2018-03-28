@@ -35,7 +35,7 @@ class Shot implements Runnable
 	int x;//子弹横坐标
 	int y;//子弹纵坐标
 	int direct;//子弹运动方向
-	int speed=3;//子弹速度
+	int speed=2;//子弹速度
 	boolean isLive=true;//子弹状态逻辑值
 	public Shot(int x,int y,int direct)
 	{
@@ -93,7 +93,7 @@ class Tank
 	int x=0;//坦克的横坐标
 	int y=0;//坦克的纵坐标
 	int direct=0;//坦克方向 ：0表示上，1表示右，2表示下，3表示左	
-	int speed=3;//坦克速度	
+	int speed=1;//坦克速度	
 	int color;//坦克颜色
 	
 	public int getColor() 
@@ -207,6 +207,8 @@ class EnemyTank extends Tank implements Runnable
 	
 	Vector<Shot>ss=new Vector<Shot>();//敌方坦克子弹
 	
+	int times=0;
+	
 	public EnemyTank(int x,int y)
 	{
 		super(x,y);
@@ -218,6 +220,9 @@ class EnemyTank extends Tank implements Runnable
 		// TODO Auto-generated method stub
 		while(true)
 		{
+			
+			
+			
 			switch(this.direct)
 			{
 			case 0:
@@ -296,8 +301,53 @@ class EnemyTank extends Tank implements Runnable
 			
 
 			
+
+			
+
+		
+		
+			
+			
 			//让坦克随机产生一个新的方向
 			this.direct=(int)(Math.random()*4);
+			
+			
+			//判断是否需要给敌方坦克添加子弹
+			this.times++;
+			if(times%2==0)
+			{
+				if(this.isLive)
+				{
+					if(this.ss.size()<5)
+					{
+						Shot s=null;
+						switch(this.direct)
+						{
+						case 0:
+							s=new Shot(this.x+10,this.y,0);
+							this.ss.add(s);
+							break;
+						case 1:
+							s=new Shot(this.x+30,this.y+10,1);
+							this.ss.add(s);
+							break;
+						case 2:
+							s=new Shot(this.x+10,this.y+30,2);
+							this.ss.add(s);
+							break;
+						case 3:
+							s=new Shot(this.x,this.y+10,3);
+							this.ss.add(s);
+							break;
+						}
+						
+						//启动子弹线程
+						Thread t_emshot=new Thread(s);
+						t_emshot.start();
+					}
+				}
+			}
+			
 			
 			if(this.isLive==false)
 			{

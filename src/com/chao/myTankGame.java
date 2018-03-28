@@ -346,41 +346,7 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 				}
 			}
 			
-			//判断是否需要给敌方坦克添加子弹
-			for(int i=0;i<ets.size();i++)
-			{
-				EnemyTank et=ets.get(i);
-				if(et.isLive)
-				{
-					if(et.ss.size()<1)
-					{
-						Shot s=null;
-						switch(et.direct)
-						{
-						case 0:
-							s=new Shot(et.x+10,et.y,0);
-							et.ss.add(s);
-							break;
-						case 1:
-							s=new Shot(et.x+30,et.y+10,1);
-							et.ss.add(s);
-							break;
-						case 2:
-							s=new Shot(et.x+10,et.y+30,2);
-							et.ss.add(s);
-							break;
-						case 3:
-							s=new Shot(et.x,et.y+10,3);
-							et.ss.add(s);
-							break;
-						}
-						
-						//启动子弹线程
-						Thread t_emshot=new Thread(s);
-						t_emshot.start();
-					}
-				}
-			}
+
 			
 			//重绘
 			this.repaint();
