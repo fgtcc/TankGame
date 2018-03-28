@@ -205,6 +205,8 @@ class EnemyTank extends Tank implements Runnable
 {
 	boolean isLive=true;//敌方坦克状态
 	
+	Vector<Shot>ss=new Vector<Shot>();//敌方坦克子弹
+	
 	public EnemyTank(int x,int y)
 	{
 		super(x,y);

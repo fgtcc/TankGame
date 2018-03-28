@@ -74,6 +74,12 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 			Thread t_enemy=new Thread(et);
 			t_enemy.start();
 			
+			//敌方坦克添加子弹
+			Shot s=new Shot(et.x+10,et.y+30,2);
+			et.ss.add(s);
+			Thread t_enemyShot=new Thread(s);
+			t_enemyShot.start();
+			
 			ets.add(et);
 		}
 		
@@ -143,7 +149,22 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 			EnemyTank et=ets.get(i);
 			if(et.isLive)
 			{
+				//绘制敌方坦克
 				this.drawTank(et.getX(), et.getY(), g, et.direct, et.color);	
+				//绘制敌方坦克子弹
+				for(int j=0;j<et.ss.size();j++)
+				{
+					Shot enemyShot=et.ss.get(j);
+					
+					if(enemyShot.isLive)
+					{
+						g.draw3DRect(enemyShot.x, enemyShot.y, 1, 1, false);	
+					}
+					else
+					{
+						et.ss.remove(enemyShot);
+					}
+				}
 			}
 		}	
 	}
@@ -322,6 +343,42 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 							this.hitTank(myshot, et);
 						}
 					}	
+				}
+			}
+			
+			//判断是否需要给敌方坦克添加子弹
+			for(int i=0;i<ets.size();i++)
+			{
+				EnemyTank et=ets.get(i);
+				if(et.isLive)
+				{
+					if(et.ss.size()<1)
+					{
+						Shot s=null;
+						switch(et.direct)
+						{
+						case 0:
+							s=new Shot(et.x+10,et.y,0);
+							et.ss.add(s);
+							break;
+						case 1:
+							s=new Shot(et.x+30,et.y+10,1);
+							et.ss.add(s);
+							break;
+						case 2:
+							s=new Shot(et.x+10,et.y+30,2);
+							et.ss.add(s);
+							break;
+						case 3:
+							s=new Shot(et.x,et.y+10,3);
+							et.ss.add(s);
+							break;
+						}
+						
+						//启动子弹线程
+						Thread t_emshot=new Thread(s);
+						t_emshot.start();
+					}
 				}
 			}
 			
