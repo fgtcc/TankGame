@@ -45,11 +45,18 @@ public class myTankGame extends JFrame
 //面板
 class MyPanel extends JPanel implements KeyListener,Runnable
 {
-	//定义玩家坦克
-	Hero hero=null;
-	//定义敌方坦克
-	Vector<EnemyTank> ets=new Vector<EnemyTank>();
+	
+	Hero hero=null;//定义玩家坦克
+	Vector<EnemyTank> ets=new Vector<EnemyTank>();//定义敌方坦克
 	int enSize=3;//敌方坦克数量
+	Vector<Bomb>bombs=new Vector<Bomb>();//定义爆炸集合
+	
+	
+	//定义爆炸的图片
+	Image image1=null;
+	Image image2=null;
+	Image image3=null;
+	
 	
 	//构造函数
 	public MyPanel()
@@ -62,8 +69,20 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 			EnemyTank et=new EnemyTank((i+1)*50,0);
 			et.setColor(0);
 			et.setDirect(2);//设置敌方坦克方向向下
+			
+			//启动敌方坦克线程
+			Thread t_enemy=new Thread(et);
+			t_enemy.start();
+			
 			ets.add(et);
 		}
+		
+		//初始化图片
+		image1=Toolkit.getDefaultToolkit().getImage("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame01.png");
+		image2=Toolkit.getDefaultToolkit().getImage("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame02.png");
+		image3=Toolkit.getDefaultToolkit().getImage("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame03.png");
+		//image3=Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame03.png"));
+		
 	}
 	
 	//重写paint方法
@@ -92,6 +111,32 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 			}
 		}
 		
+		//绘制爆炸场景
+		for(int i=0;i<bombs.size();i++)
+		{
+			Bomb b=bombs.get(i);
+			
+			if(b.life>6)
+			{
+				g.drawImage(image1, b.x, b.y, 30, 30, this);
+			}
+			else if(b.life>3)
+			{
+				g.drawImage(image2, b.x, b.y, 30, 30, this);
+			}
+			else
+			{
+				g.drawImage(image3, b.x, b.y, 30, 30, this);
+			}
+			
+			b.lifeDown();
+			
+			if(b.life==0)
+			{
+				bombs.remove(b);
+			}
+		}
+		
 		//画出敌方坦克
 		for(int i=0;i<ets.size();i++)
 		{
@@ -116,6 +161,10 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 				//击中
 				s.isLive=false;//子弹死亡
 				et.isLive=false;//敌方坦克死亡
+				
+				//创建爆炸对象并放入集合中
+				Bomb b=new Bomb(et.x,et.y);
+				bombs.add(b);
 			}
 		case 1:
 		case 3:
@@ -124,6 +173,10 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 				//击中
 				s.isLive=false;//子弹死亡
 				et.isLive=false;//敌方坦克死亡
+				
+				//创建爆炸对象并放入集合中
+				Bomb b=new Bomb(et.x,et.y);
+				bombs.add(b);
 			}
 		}
 	}
@@ -268,8 +321,7 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 						{
 							this.hitTank(myshot, et);
 						}
-					}
-					
+					}	
 				}
 			}
 			

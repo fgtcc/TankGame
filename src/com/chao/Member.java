@@ -2,6 +2,33 @@ package com.chao;
 
 import java.util.Vector;
 
+//爆炸类
+class Bomb
+{
+	int x,y;//定义爆炸的位置坐标
+	int life=9;//爆炸的生命周期
+	boolean isLive=true;
+	
+	public Bomb(int x,int y)
+	{
+		this.x=x;
+		this.y=y;
+	}
+	
+	//生命周期减少
+	public void lifeDown()
+	{
+		if(life>0)
+		{
+			life--;
+		}
+		else
+		{
+			this.isLive=false;
+		}
+	}
+}
+
 //子弹类
 class Shot implements Runnable
 {
@@ -66,7 +93,7 @@ class Tank
 	int x=0;//坦克的横坐标
 	int y=0;//坦克的纵坐标
 	int direct=0;//坦克方向 ：0表示上，1表示右，2表示下，3表示左	
-	int speed=5;//坦克速度	
+	int speed=3;//坦克速度	
 	int color;//坦克颜色
 	
 	public int getColor() 
@@ -174,12 +201,107 @@ class Hero extends Tank
 	}
 }
 
-class EnemyTank extends Tank
+class EnemyTank extends Tank implements Runnable
 {
 	boolean isLive=true;//敌方坦克状态
 	
 	public EnemyTank(int x,int y)
 	{
 		super(x,y);
+	}
+
+	@Override
+	public void run() 
+	{
+		// TODO Auto-generated method stub
+		while(true)
+		{
+			switch(this.direct)
+			{
+			case 0:
+				for(int i=0;i<30+(int)(Math.random()*100);i++)
+				{
+					if(y>0)
+					{
+						y-=speed;						
+					}
+					try
+					{
+						Thread.sleep(50);
+					}
+					catch(Exception e)
+					{
+						e.printStackTrace();
+					}	
+				}
+				
+				break;
+			case 1:
+				for(int i=0;i<30+(int)(Math.random()*100);i++)
+				{
+					if(x<400)
+					{
+						x+=speed;						
+					}
+					try
+					{
+						Thread.sleep(50);
+					}
+					catch(Exception e)
+					{
+						e.printStackTrace();
+					}	
+				}
+				
+				break;
+			case 2:
+				for(int i=0;i<30+(int)(Math.random()*100);i++)
+				{
+					if(y<300)
+					{
+						y+=speed;						
+					}
+					try
+					{
+						Thread.sleep(50);
+					}
+					catch(Exception e)
+					{
+						e.printStackTrace();
+					}	
+				}
+				
+				break;
+			case 3:
+				for(int i=0;i<30+(int)(Math.random()*100);i++)
+				{
+					if(x>0)
+					{
+						x-=speed;						
+					}
+					try
+					{
+						Thread.sleep(50);
+					}
+					catch(Exception e)
+					{
+						e.printStackTrace();
+					}	
+				}
+				
+				break;
+			}
+			
+
+			
+			//让坦克随机产生一个新的方向
+			this.direct=(int)(Math.random()*4);
+			
+			if(this.isLive==false)
+			{
+				//坦克死亡后，退出线程
+				break;
+			}
+		}
 	}
 }
