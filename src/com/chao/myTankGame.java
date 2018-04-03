@@ -7,8 +7,11 @@ package com.chao;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class myTankGame extends JFrame
@@ -83,11 +86,22 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 			ets.add(et);
 		}
 		
+		try 
+		{
+			image1=ImageIO.read(new File("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame01.png"));
+			image2=ImageIO.read(new File("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame02.png"));
+			image3=ImageIO.read(new File("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame03.png"));
+		} 
+		catch (IOException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//初始化图片
-		image1=Toolkit.getDefaultToolkit().getImage("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame01.png");
-		image2=Toolkit.getDefaultToolkit().getImage("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame02.png");
-		image3=Toolkit.getDefaultToolkit().getImage("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame03.png");
-		//image3=Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame03.png"));
+		//image1=Toolkit.getDefaultToolkit().getImage("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame01.png");
+		//image2=Toolkit.getDefaultToolkit().getImage("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame02.png");
+		//image3=Toolkit.getDefaultToolkit().getImage("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame03.png");
+		////image3=Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame03.png"));
 		
 	}
 	
@@ -98,7 +112,10 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 		g.fillRect(0, 0, 400, 300);
 		
 		//画出玩家坦克
-		this.drawTank(hero.getX(),hero.getY(),g,this.hero.getDirect(),1);
+		if(hero.isLive)
+		{
+			this.drawTank(hero.getX(),hero.getY(),g,this.hero.getDirect(),1);			
+		}
 		
 		//绘制子弹
 		for(int i=0;i<hero.ss.size();i++)
@@ -169,8 +186,46 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 		}	
 	}
 	
+	//判断敌方子弹是否击中玩家
+	public void hitMe()
+	{
+		for(int i=0;i<this.ets.size();i++)
+		{
+			EnemyTank et=ets.get(i);
+			for(int j=0;j<et.ss.size();j++)
+			{
+				Shot enemyShot=et.ss.get(j);
+				this.hitTank(enemyShot, hero);
+			}
+		}
+	}
+	
+	//判断玩家子弹是否击中敌方坦克
+	public void hitEnemyTank()
+	{
+		//判断子弹是否击中坦克
+		for(int i=0;i<hero.ss.size();i++)
+		{
+			Shot myshot=hero.ss.get(i);
+			//判断子弹状态
+			if(myshot.isLive)
+			{
+				for(int j=0;j<ets.size();j++)
+				{
+					EnemyTank et =ets.get(j);
+					
+					if(et.isLive)
+					{
+						this.hitTank(myshot, et);
+					}
+				}	
+			}
+		}
+	}
+	
+	
 	//判断子弹是否击中坦克
-	public void hitTank(Shot s,EnemyTank et)
+	public void hitTank(Shot s,Tank et)
 	{
 		//判断坦克方向
 		switch(et.direct)
@@ -327,26 +382,10 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 				e.printStackTrace();
 			}
 			
-			//判断子弹是否击中坦克
-			for(int i=0;i<hero.ss.size();i++)
-			{
-				Shot myshot=hero.ss.get(i);
-				//判断子弹状态
-				if(myshot.isLive)
-				{
-					for(int j=0;j<ets.size();j++)
-					{
-						EnemyTank et =ets.get(j);
-						
-						if(et.isLive)
-						{
-							this.hitTank(myshot, et);
-						}
-					}	
-				}
-			}
-			
-
+			//是否击中敌方坦克
+			this.hitEnemyTank();
+			//玩家坦克是否被击中
+			this.hitMe();
 			
 			//重绘
 			this.repaint();

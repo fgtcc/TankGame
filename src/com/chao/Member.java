@@ -95,6 +95,7 @@ class Tank
 	int direct=0;//坦克方向 ：0表示上，1表示右，2表示下，3表示左	
 	int speed=1;//坦克速度	
 	int color;//坦克颜色
+	boolean isLive=true;//坦克是否死亡的标志
 	
 	public int getColor() 
 	{
@@ -202,9 +203,7 @@ class Hero extends Tank
 }
 
 class EnemyTank extends Tank implements Runnable
-{
-	boolean isLive=true;//敌方坦克状态
-	
+{	
 	Vector<Shot>ss=new Vector<Shot>();//敌方坦克子弹
 	
 	int times=0;
@@ -219,10 +218,7 @@ class EnemyTank extends Tank implements Runnable
 	{
 		// TODO Auto-generated method stub
 		while(true)
-		{
-			
-			
-			
+		{		
 			switch(this.direct)
 			{
 			case 0:
@@ -298,20 +294,11 @@ class EnemyTank extends Tank implements Runnable
 				
 				break;
 			}
-			
-
-			
-
-			
-
-		
-		
-			
+				
 			
 			//让坦克随机产生一个新的方向
 			this.direct=(int)(Math.random()*4);
-			
-			
+					
 			//判断是否需要给敌方坦克添加子弹
 			this.times++;
 			if(times%2==0)
