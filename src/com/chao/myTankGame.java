@@ -5,6 +5,8 @@
 package com.chao;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
@@ -14,8 +16,15 @@ import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
-public class myTankGame extends JFrame
+public class myTankGame extends JFrame implements ActionListener
 {
+	MyStartPanel msp=null;//开始面板
+	
+	//菜单
+	JMenuBar jmb=null;
+	JMenu jm1=null;
+	JMenuItem jmi1=null;
+	
 	MyPanel mp=null;
 	public static void main(String[] args) 
 	{
@@ -26,23 +35,90 @@ public class myTankGame extends JFrame
 	
 	//构造函数
 	public myTankGame()
-	{
-		mp=new MyPanel();
-		//启动mp线程
-		Thread t=new Thread(mp);
-		t.start();	
+	{	
+		//创建菜单及菜单选项
+		jmb=new JMenuBar();
+		jm1=new JMenu("游戏(G)");
+		jm1.setMnemonic('G');//设置快捷方式 Alt+G
+		jmi1=new JMenuItem("开始新游戏(N)");
+		jmi1.setMnemonic('N');//设置快捷方式
+		jmi1.addActionListener(this);
+		jmi1.setActionCommand("newgame");
 		
-		this.add(mp);
+		jm1.add(jmi1);
+		jmb.add(jm1);
 		
-		//注册监听
-		this.addKeyListener(mp);
+		msp=new MyStartPanel();
+		Thread t_startPanel=new Thread(msp);
+		t_startPanel.start();
 		
-		this.setSize(400,300);
+		this.setJMenuBar(jmb);
+		this.add(msp);
+		
+		this.setSize(600,500);
 		this.setLocation(360, 160);
 		this.setVisible(true);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
+	@Override
+	public void actionPerformed(ActionEvent arg0) 
+	{
+		// TODO Auto-generated method stub
+		if(arg0.getActionCommand().equals("newgame")&&(mp==null))
+		{
+			mp=new MyPanel();
+			//启动mp线程
+			Thread t=new Thread(mp);
+			t.start();	
+			this.remove(msp);//删除开始面板
+			this.add(mp);//添加游戏面板
+			
+			//注册监听
+			this.addKeyListener(mp);
+			this.setVisible(true);
+		}
+	}
+
+}
+
+//开始面板
+class MyStartPanel extends JPanel implements Runnable
+{
+	boolean isBlink=true;
+	
+	public void paint(Graphics g)
+	{
+		super.paint(g);
+		g.fillRect(0, 0, 400, 300);
+		if(isBlink)
+		{
+			g.setColor(Color.yellow);
+			Font myfont=new Font("华文新魏",Font.BOLD,30);
+			g.setFont(myfont);
+			g.drawString("stage : 1", 150, 150);			
+		}
+	}
+
+	@Override
+	public void run() 
+	{
+		// TODO Auto-generated method stub
+		while(true)
+		{
+			try 
+			{
+				Thread.sleep(500);
+			}
+			catch (InterruptedException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			isBlink=!isBlink;
+			this.repaint();
+		}
+	}
 }
 
 //面板
@@ -51,7 +127,7 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 	
 	Hero hero=null;//定义玩家坦克
 	Vector<EnemyTank> ets=new Vector<EnemyTank>();//定义敌方坦克
-	int enSize=3;//敌方坦克数量
+	int enSize=6;//敌方坦克数量
 	Vector<Bomb>bombs=new Vector<Bomb>();//定义爆炸集合
 	
 	
@@ -64,7 +140,7 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 	//构造函数
 	public MyPanel()
 	{
-		hero=new Hero(100,100);
+		hero=new Hero(200,200);
 		
 		//初始化敌方坦克
 		for(int i=0;i<enSize;i++)
@@ -72,6 +148,7 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 			EnemyTank et=new EnemyTank((i+1)*50,0);
 			et.setColor(0);
 			et.setDirect(2);//设置敌方坦克方向向下
+			et.setEts(ets);//将面板上的敌方坦克向量交给该坦克访问
 			
 			//启动敌方坦克线程
 			Thread t_enemy=new Thread(et);
@@ -110,6 +187,9 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 	{
 		super.paint(g);
 		g.fillRect(0, 0, 400, 300);
+		
+		//绘制提示信息
+		this.showInfo(g);
 		
 		//画出玩家坦克
 		if(hero.isLive)
@@ -186,6 +266,25 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 		}	
 	}
 	
+	public void showInfo(Graphics g)
+	{
+		this.drawTank(80, 330, g, 0, 0);
+		g.setColor(Color.black);
+		g.drawString(Recorder.getEnNum()+"", 110, 350);
+		this.drawTank(130, 330, g, 0, 1);
+		g.setColor(Color.black);
+		g.drawString(Recorder.getMylife()+"", 165, 350);
+		
+		g.setColor(Color.black);
+		Font f=new Font("宋体",Font.BOLD,20);
+		g.setFont(f);
+		g.drawString("您的总成绩", 420, 30);
+		
+		this.drawTank(420, 60, g, 0, 0);
+		g.setColor(Color.black);
+		g.drawString(Recorder.getAllEnNum()+"", 460, 80);
+	}
+	
 	//判断敌方子弹是否击中玩家
 	public void hitMe()
 	{
@@ -195,7 +294,10 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 			for(int j=0;j<et.ss.size();j++)
 			{
 				Shot enemyShot=et.ss.get(j);
-				this.hitTank(enemyShot, hero);
+				if(hero.isLive)
+				{
+					this.hitTank(enemyShot, hero);					
+				}
 			}
 		}
 	}
@@ -237,7 +339,8 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 				//击中
 				s.isLive=false;//子弹死亡
 				et.isLive=false;//敌方坦克死亡
-				
+				Recorder.reduceEnNum();
+				Recorder.addEnNumRec();
 				//创建爆炸对象并放入集合中
 				Bomb b=new Bomb(et.x,et.y);
 				bombs.add(b);
@@ -249,7 +352,8 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 				//击中
 				s.isLive=false;//子弹死亡
 				et.isLive=false;//敌方坦克死亡
-				
+				Recorder.reduceEnNum();
+				Recorder.addEnNumRec();
 				//创建爆炸对象并放入集合中
 				Bomb b=new Bomb(et.x,et.y);
 				bombs.add(b);

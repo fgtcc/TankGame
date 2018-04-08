@@ -2,6 +2,44 @@ package com.chao;
 
 import java.util.Vector;
 
+//记录类，可以保存玩家的设置
+class Recorder
+{
+	private static int enNum=20;//记录没关敌方坦克数量
+	private static int mylife=3;//设置玩家生命次数
+	private static int allEnNum=0;//记录所消灭的敌方坦克的数量
+	
+	public static int getAllEnNum() {
+		return allEnNum;
+	}
+	public static void setAllEnNum(int allEnNum) {
+		Recorder.allEnNum = allEnNum;
+	}
+	public static int getEnNum() {
+		return enNum;
+	}
+	public static void setEnNum(int enNum) {
+		Recorder.enNum = enNum;
+	}
+	public static int getMylife() {
+		return mylife;
+	}
+	public static void setMylife(int mylife) {
+		Recorder.mylife = mylife;
+	}
+	
+	public static void reduceEnNum()
+	{
+		enNum--;
+	}
+	
+	public static void addEnNumRec()
+	{
+		allEnNum++;
+	}
+	
+}
+
 //爆炸类
 class Bomb
 {
@@ -208,11 +246,158 @@ class EnemyTank extends Tank implements Runnable
 	
 	int times=0;
 	
+	//定义一个坦克向量，用于存储面板上的敌方坦克
+	Vector<EnemyTank> ets= new Vector<EnemyTank>();
+	
 	public EnemyTank(int x,int y)
 	{
 		super(x,y);
 	}
 
+	//获得面板上的敌方坦克向量
+	public void setEts(Vector<EnemyTank> vv)
+	{
+		this.ets=vv;
+	}
+	
+	//判断坦克之间是否重叠
+	public boolean isTouchOtherEnemy()
+	{
+		boolean b=false;
+		
+		switch(this.direct)
+		{
+		case 0:
+			for(int i=0;i<ets.size();i++)
+			{
+				EnemyTank et=ets.get(i);
+				if(et!=this)
+				{
+					if(et.direct==0||et.direct==2)
+					{
+						if(this.x>=et.x&&this.x<=et.x+20&&this.y>=et.y&&this.y<=et.y+30)
+						{
+							return true;
+						}
+						if(this.x+20>=et.x&&this.x+20<=et.x+20&&this.y>=et.y&&this.y<=et.y+30)
+						{
+							return true;
+						}
+					}
+					if(et.direct==1||et.direct==3)
+					{
+						if(this.x>=et.x&&this.x<=et.x+30&&this.y>=et.y&&this.y<=et.y+20)
+						{
+							return true;
+						}
+						if(this.x+20>=et.x&&this.x+20<=et.x+30&&this.y>=et.y&&this.y<=et.y+20)
+						{
+							return true;
+						}
+					}
+				}
+			}
+			break;
+		case 1:
+			for(int i=0;i<ets.size();i++)
+			{
+				EnemyTank et=ets.get(i);
+				if(et!=this)
+				{
+					if(et.direct==0||et.direct==2)
+					{
+						if(this.x+30>=et.x&&this.x+30<=et.x+20&&this.y>=et.y&&this.y<=et.y+30)
+						{
+							return true;
+						}
+						if(this.x+30>=et.x&&this.x+30<=et.x+20&&this.y+20>=et.y&&this.y+20<=et.y+30)
+						{
+							return true;
+						}
+					}
+					if(et.direct==1||et.direct==3)
+					{
+						if(this.x+30>=et.x&&this.x+30<=et.x+30&&this.y>=et.y&&this.y<=et.y+20)
+						{
+							return true;
+						}
+						if(this.x+30>=et.x&&this.x+30<=et.x+30&&this.y+20>=et.y&&this.y+20<=et.y+20)
+						{
+							return true;
+						}
+					}
+				}
+			}
+			break;
+		case 2:
+			for(int i=0;i<ets.size();i++)
+			{
+				EnemyTank et=ets.get(i);
+				if(et!=this)
+				{
+					if(et.direct==0||et.direct==2)
+					{
+						if(this.x>=et.x&&this.x<=et.x+20&&this.y+30>=et.y&&this.y+30<=et.y+30)
+						{
+							return true;
+						}
+						if(this.x+20>=et.x&&this.x+20<=et.x+20&&this.y+30>=et.y&&this.y+30<=et.y+30)
+						{
+							return true;
+						}
+					}
+					if(et.direct==1||et.direct==3)
+					{
+						if(this.x>=et.x&&this.x<=et.x+30&&this.y+30>=et.y&&this.y+30<=et.y+20)
+						{
+							return true;
+						}
+						if(this.x+20>=et.x&&this.x+20<=et.x+30&&this.y+30>=et.y&&this.y+30<=et.y+20)
+						{
+							return true;
+						}
+					}
+				}
+			}
+			break;
+		case 3:
+			for(int i=0;i<ets.size();i++)
+			{
+				EnemyTank et=ets.get(i);
+				if(et!=this)
+				{
+					if(et.direct==0||et.direct==2)
+					{
+						if(this.x>=et.x&&this.x<=et.x+20&&this.y>=et.y&&this.y<=et.y+30)
+						{
+							return true;
+						}
+						if(this.x>=et.x&&this.x<=et.x+20&&this.y+20>=et.y&&this.y+20<=et.y+30)
+						{
+							return true;
+						}
+					}
+					if(et.direct==1||et.direct==3)
+					{
+						if(this.x>=et.x&&this.x<=et.x+30&&this.y>=et.y&&this.y<=et.y+20)
+						{
+							return true;
+						}
+						if(this.x>=et.x&&this.x<=et.x+30&&this.y+20>=et.y&&this.y+20<=et.y+20)
+						{
+							return true;
+						}
+					}
+				}
+			}
+			break;
+			
+		}
+		
+		return b;
+	}
+	
+	
 	@Override
 	public void run() 
 	{
@@ -224,7 +409,7 @@ class EnemyTank extends Tank implements Runnable
 			case 0:
 				for(int i=0;i<30+(int)(Math.random()*100);i++)
 				{
-					if(y>0)
+					if(y>0&&!this.isTouchOtherEnemy())
 					{
 						y-=speed;						
 					}
@@ -242,7 +427,7 @@ class EnemyTank extends Tank implements Runnable
 			case 1:
 				for(int i=0;i<30+(int)(Math.random()*100);i++)
 				{
-					if(x<400)
+					if(x<400&&!this.isTouchOtherEnemy())
 					{
 						x+=speed;						
 					}
@@ -260,7 +445,7 @@ class EnemyTank extends Tank implements Runnable
 			case 2:
 				for(int i=0;i<30+(int)(Math.random()*100);i++)
 				{
-					if(y<300)
+					if(y<300&&!this.isTouchOtherEnemy())
 					{
 						y+=speed;						
 					}
@@ -278,7 +463,7 @@ class EnemyTank extends Tank implements Runnable
 			case 3:
 				for(int i=0;i<30+(int)(Math.random()*100);i++)
 				{
-					if(x>0)
+					if(x>0&&!this.isTouchOtherEnemy())
 					{
 						x-=speed;						
 					}
