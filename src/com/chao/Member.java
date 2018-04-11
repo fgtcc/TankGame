@@ -1,6 +1,21 @@
 package com.chao;
 
+import java.io.*;
 import java.util.Vector;
+
+class Node
+{
+	int x;
+	int y;
+	int direct;
+	
+	public Node(int x,int y,int direct)
+	{
+		this.x=x;
+		this.y=y;
+		this.direct=direct;
+	}
+}
 
 //记录类，可以保存玩家的设置
 class Recorder
@@ -8,6 +23,160 @@ class Recorder
 	private static int enNum=20;//记录没关敌方坦克数量
 	private static int mylife=3;//设置玩家生命次数
 	private static int allEnNum=0;//记录所消灭的敌方坦克的数量
+	static Vector<Node>nodes=new Vector<Node>();//文件中所记录的坦克点
+	
+	
+	private static FileWriter fw=null;
+	private static BufferedWriter bw=null;
+	private static FileReader fr=null;
+	private static BufferedReader br=null;
+	
+	private static Vector<EnemyTank>ets=new Vector<EnemyTank>();
+	
+	//读取坦克坐标与方向
+	public void getNodes()
+	{
+		try 
+		{
+			fr=new FileReader("D:/myTankRecord.txt");
+			br=new BufferedReader(fr);
+			String n="";
+			n=br.readLine();
+			allEnNum=Integer.parseInt(n);
+			
+			while((n=br.readLine())!=null)
+			{
+				String []xyz=n.split(" ");
+				Node node=new Node(Integer.parseInt(xyz[0]),Integer.parseInt(xyz[1]),Integer.parseInt(xyz[2]));
+				nodes.add(node);
+			}
+		} 
+		catch (Exception e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally
+		{
+			try 
+			{
+				br.close();
+				fr.close();
+			}
+			catch (IOException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public Vector<EnemyTank> getEts() {
+		return ets;
+	}
+
+	public void setEts(Vector<EnemyTank> ets) {
+		this.ets = ets;
+	}
+
+	//从文件中读取游戏数据
+	public static void getRecording()
+	{
+		try 
+		{
+			fr=new FileReader("D:/myTankRecord.txt");
+			br=new BufferedReader(fr);
+			String n=br.readLine();
+			allEnNum=Integer.parseInt(n);
+		} 
+		catch (Exception e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally
+		{
+			try 
+			{
+				br.close();
+				fr.close();
+			}
+			catch (IOException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	//游戏数据存盘
+	public static void keepRecording()
+	{
+		try 
+		{
+			fw=new FileWriter("D:/myTankRecord.txt");
+			bw=new BufferedWriter(fw);
+			bw.write(allEnNum+"\r\n");
+		}
+		catch (IOException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				bw.close();
+				fw.close();
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static void keepRecAndEts()
+	{
+		try 
+		{
+			fw=new FileWriter("D:/myTankRecord.txt");
+			bw=new BufferedWriter(fw);
+			bw.write(allEnNum+"\r\n");
+			
+			//保存敌方坦克位置坐标与方向
+			for(int i=0;i<ets.size();i++)
+			{
+				EnemyTank et=ets.get(i);
+				if(et.isLive)
+				{
+					String data=et.x+" "+et.y+" "+et.direct;
+					
+					bw.write(data+"\r\n");
+				}
+			}
+		}
+		catch (IOException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				bw.close();
+				fw.close();
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	public static int getAllEnNum() {
 		return allEnNum;

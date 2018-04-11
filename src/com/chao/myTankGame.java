@@ -24,6 +24,10 @@ public class myTankGame extends JFrame implements ActionListener
 	JMenuBar jmb=null;
 	JMenu jm1=null;
 	JMenuItem jmi1=null;
+	JMenuItem jmi2=null;
+	JMenuItem jmi3=null;
+	JMenuItem jmi4=null;
+	
 	
 	MyPanel mp=null;
 	public static void main(String[] args) 
@@ -40,12 +44,32 @@ public class myTankGame extends JFrame implements ActionListener
 		jmb=new JMenuBar();
 		jm1=new JMenu("游戏(G)");
 		jm1.setMnemonic('G');//设置快捷方式 Alt+G
+		
 		jmi1=new JMenuItem("开始新游戏(N)");
 		jmi1.setMnemonic('N');//设置快捷方式
 		jmi1.addActionListener(this);
 		jmi1.setActionCommand("newgame");
 		
+		jmi2=new JMenuItem("退出游戏(E)");
+		jmi2.setMnemonic('E');
+		jmi2.addActionListener(this);
+		jmi2.setActionCommand("exit");
+		
+		jmi3=new JMenuItem("存盘退出游戏(C)");
+		jmi3.setMnemonic('C');
+		jmi3.addActionListener(this);
+		jmi3.setActionCommand("saveExit");
+		
+		jmi4=new JMenuItem("继续上局游戏(S)");
+		jmi4.setMnemonic('S');
+		jmi4.addActionListener(this);
+		jmi4.setActionCommand("conGame");
+		
 		jm1.add(jmi1);
+		jm1.add(jmi2);
+		jm1.add(jmi3);
+		jm1.add(jmi4);
+		
 		jmb.add(jm1);
 		
 		msp=new MyStartPanel();
@@ -77,6 +101,17 @@ public class myTankGame extends JFrame implements ActionListener
 			//注册监听
 			this.addKeyListener(mp);
 			this.setVisible(true);
+		}
+		else if(arg0.getActionCommand().equals("exit"))
+		{
+			Recorder.keepRecording();
+			System.exit(0);
+		}
+		else if(arg0.getActionCommand().equals("saveExit"))
+		{
+			new Recorder().setEts(mp.ets);
+			Recorder.keepRecAndEts();
+			System.exit(0);
 		}
 	}
 
@@ -140,6 +175,9 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 	//构造函数
 	public MyPanel()
 	{
+		//从文件中读取历史数据
+		Recorder.getRecording();
+		
 		hero=new Hero(200,200);
 		
 		//初始化敌方坦克
@@ -318,7 +356,11 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 					
 					if(et.isLive)
 					{
-						this.hitTank(myshot, et);
+						if(this.hitTank(myshot, et))
+						{
+							Recorder.reduceEnNum();
+							Recorder.addEnNumRec();
+						}
 					}
 				}	
 			}
@@ -327,8 +369,9 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 	
 	
 	//判断子弹是否击中坦克
-	public void hitTank(Shot s,Tank et)
+	public boolean hitTank(Shot s,Tank et)
 	{
+		boolean isHit=false;
 		//判断坦克方向
 		switch(et.direct)
 		{
@@ -339,12 +382,12 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 				//击中
 				s.isLive=false;//子弹死亡
 				et.isLive=false;//敌方坦克死亡
-				Recorder.reduceEnNum();
-				Recorder.addEnNumRec();
+				isHit=true;
 				//创建爆炸对象并放入集合中
 				Bomb b=new Bomb(et.x,et.y);
 				bombs.add(b);
 			}
+			break;
 		case 1:
 		case 3:
 			if(s.x>et.x&&s.x<et.x+30&&s.y>et.y&&s.y<et.y+20)
@@ -352,13 +395,15 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 				//击中
 				s.isLive=false;//子弹死亡
 				et.isLive=false;//敌方坦克死亡
-				Recorder.reduceEnNum();
-				Recorder.addEnNumRec();
+				isHit=true;
 				//创建爆炸对象并放入集合中
 				Bomb b=new Bomb(et.x,et.y);
 				bombs.add(b);
 			}
+			break;
 		}
+		
+		return isHit;
 	}
 	
 	
