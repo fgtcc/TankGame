@@ -2,6 +2,78 @@ package com.chao;
 
 import java.io.*;
 import java.util.Vector;
+import javax.sound.sampled.*;
+
+//播放声音的类
+class AePlayWave extends Thread
+{
+	private String filename;
+	public AePlayWave(String wavfile)
+	{
+		filename=wavfile;
+	}
+	
+	public void run()
+	{
+		File soundFile =new File(filename);
+		AudioInputStream audioInputStream=null;
+		
+		try 
+		{
+			audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		} 
+		
+		AudioFormat format =audioInputStream.getFormat();
+		SourceDataLine auline=null;
+		DataLine.Info info =new DataLine.Info(SourceDataLine.class, format);
+		
+		try 
+		{
+			auline=(SourceDataLine)AudioSystem.getLine(info);
+			auline.open(format);
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return ;
+		}
+		
+		auline.start();
+		int nBytesRead=0;
+		byte[] abData=new byte[1024];
+		
+		try 
+		{
+			while(nBytesRead !=-1)
+			{
+				nBytesRead=audioInputStream.read(abData, 0, abData.length);
+				if(nBytesRead>=0)
+				{
+					auline.write(abData, 0, nBytesRead);
+				}
+			}
+		} 
+		catch (IOException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return ;
+		}
+		finally
+		{
+			auline.drain();
+			auline.close();
+		}
+		
+	}
+}
 
 class Node
 {
@@ -34,11 +106,11 @@ class Recorder
 	private static Vector<EnemyTank>ets=new Vector<EnemyTank>();
 	
 	//读取坦克坐标与方向
-	public void getNodes()
+	public Vector<Node> getNodes()
 	{
 		try 
 		{
-			fr=new FileReader("D:/myTankRecord.txt");
+			fr=new FileReader("E:\\document_eclipse\\TankGame\\src\\com\\chao\\myTankRecord.txt");
 			br=new BufferedReader(fr);
 			String n="";
 			n=br.readLine();
@@ -69,6 +141,8 @@ class Recorder
 				e.printStackTrace();
 			}
 		}
+		
+		return nodes;
 	}
 	
 	public Vector<EnemyTank> getEts() {
@@ -84,7 +158,7 @@ class Recorder
 	{
 		try 
 		{
-			fr=new FileReader("D:/myTankRecord.txt");
+			fr=new FileReader("E:\\document_eclipse\\TankGame\\src\\com\\chao\\myTankRecord.txt");
 			br=new BufferedReader(fr);
 			String n=br.readLine();
 			allEnNum=Integer.parseInt(n);
@@ -114,7 +188,7 @@ class Recorder
 	{
 		try 
 		{
-			fw=new FileWriter("D:/myTankRecord.txt");
+			fw=new FileWriter("E:\\document_eclipse\\TankGame\\src\\com\\chao\\myTankRecord.txt");
 			bw=new BufferedWriter(fw);
 			bw.write(allEnNum+"\r\n");
 		}
@@ -142,7 +216,7 @@ class Recorder
 	{
 		try 
 		{
-			fw=new FileWriter("D:/myTankRecord.txt");
+			fw=new FileWriter("E:\\document_eclipse\\TankGame\\src\\com\\chao\\myTankRecord.txt");
 			bw=new BufferedWriter(fw);
 			bw.write(allEnNum+"\r\n");
 			

@@ -91,7 +91,7 @@ public class myTankGame extends JFrame implements ActionListener
 		// TODO Auto-generated method stub
 		if(arg0.getActionCommand().equals("newgame")&&(mp==null))
 		{
-			mp=new MyPanel();
+			mp=new MyPanel("newGame");
 			//启动mp线程
 			Thread t=new Thread(mp);
 			t.start();	
@@ -112,6 +112,20 @@ public class myTankGame extends JFrame implements ActionListener
 			new Recorder().setEts(mp.ets);
 			Recorder.keepRecAndEts();
 			System.exit(0);
+		}
+		else if(arg0.getActionCommand().equals("conGame"))
+		{
+			mp=new MyPanel("con");
+
+			//启动mp线程
+			Thread t=new Thread(mp);
+			t.start();	
+			this.remove(msp);//删除开始面板
+			this.add(mp);//添加游戏面板
+			
+			//注册监听
+			this.addKeyListener(mp);
+			this.setVisible(true);
 		}
 	}
 
@@ -159,6 +173,7 @@ class MyStartPanel extends JPanel implements Runnable
 //面板
 class MyPanel extends JPanel implements KeyListener,Runnable
 {
+	Vector<Node>nodes=new Vector<Node>();
 	
 	Hero hero=null;//定义玩家坦克
 	Vector<EnemyTank> ets=new Vector<EnemyTank>();//定义敌方坦克
@@ -173,32 +188,61 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 	
 	
 	//构造函数
-	public MyPanel()
+	public MyPanel(String flag)
 	{
 		//从文件中读取历史数据
 		Recorder.getRecording();
 		
 		hero=new Hero(200,200);
-		
-		//初始化敌方坦克
-		for(int i=0;i<enSize;i++)
+			
+		if(flag.equals("newGame"))
 		{
-			EnemyTank et=new EnemyTank((i+1)*50,0);
-			et.setColor(0);
-			et.setDirect(2);//设置敌方坦克方向向下
-			et.setEts(ets);//将面板上的敌方坦克向量交给该坦克访问
-			
-			//启动敌方坦克线程
-			Thread t_enemy=new Thread(et);
-			t_enemy.start();
-			
-			//敌方坦克添加子弹
-			Shot s=new Shot(et.x+10,et.y+30,2);
-			et.ss.add(s);
-			Thread t_enemyShot=new Thread(s);
-			t_enemyShot.start();
-			
-			ets.add(et);
+			//初始化敌方坦克
+			for(int i=0;i<enSize;i++)
+			{
+				EnemyTank et=new EnemyTank((i+1)*50,0);
+				et.setColor(0);
+				et.setDirect(2);//设置敌方坦克方向向下
+				et.setEts(ets);//将面板上的敌方坦克向量交给该坦克访问
+				
+				//启动敌方坦克线程
+				Thread t_enemy=new Thread(et);
+				t_enemy.start();
+				
+				//敌方坦克添加子弹
+				Shot s=new Shot(et.x+10,et.y+30,2);
+				et.ss.add(s);
+				Thread t_enemyShot=new Thread(s);
+				t_enemyShot.start();
+				
+				ets.add(et);
+			}
+		}
+		else
+		{
+			nodes=new Recorder().getNodes();
+			//初始化敌方坦克
+			for(int i=0;i<nodes.size();i++)
+			{
+				Node node=nodes.get(i);
+				
+				EnemyTank et=new EnemyTank(node.x,node.y);
+				et.setColor(0);
+				et.setDirect(node.direct);//设置敌方坦克方向向下
+				et.setEts(ets);//将面板上的敌方坦克向量交给该坦克访问
+				
+				//启动敌方坦克线程
+				Thread t_enemy=new Thread(et);
+				t_enemy.start();
+				
+				//敌方坦克添加子弹
+				Shot s=new Shot(et.x+10,et.y+30,2);
+				et.ss.add(s);
+				Thread t_enemyShot=new Thread(s);
+				t_enemyShot.start();
+				
+				ets.add(et);
+			}	
 		}
 		
 		try 
@@ -212,6 +256,10 @@ class MyPanel extends JPanel implements KeyListener,Runnable
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		//播放声音文件
+		AePlayWave apw=new AePlayWave("E:\\document_eclipse\\TankGame\\src\\com\\chao\\9444.wav");
+		apw.start();
 		//初始化图片
 		//image1=Toolkit.getDefaultToolkit().getImage("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame01.png");
 		//image2=Toolkit.getDefaultToolkit().getImage("E:\\document_eclipse\\TankGame\\src\\com\\chao\\explode_tankmovie_frame02.png");
